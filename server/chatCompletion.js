@@ -1,5 +1,7 @@
 // Non-streaming API
 import express from "express"
+import { writeFile } from "fs/promises"
+import { join, resolve } from "path"
 import { HfInference } from "@huggingface/inference"
 
 // TODO: Log input and output to files
@@ -14,7 +16,9 @@ const chatCompletion = express.Router()
 chatCompletion.get("/:content", async (req, res) => {
   // Get params
   const { content } = req.params
-  console.log(content)
+  const clientIPArray = req.ip.split(":")
+  const clientIP = clientIPArray[clientIPArray.length-1]
+  console.log(clientIP, content)
 
   // Response header
   res.writeHead(200, {
@@ -35,10 +39,16 @@ chatCompletion.get("/:content", async (req, res) => {
     seed: 0,
   })) {
     if (chunk.choices && chunk.choices.length > 0) {
-      // out += chunk.choices[0].delta.content
+      out += chunk.choices[0].delta.content
       res.write(chunk.choices[0].delta.content)
     }
   }
+  // New file name
+  const fileName = `hf_${clientIP}_${Date.now().toString()}.txt`
+  // Path, save to images folder
+  const filePath = resolve(join(`${process.cwd()}/chats`, fileName))
+  // Save file
+  await writeFile(filePath, out)
   res.end()
 })
 
@@ -61,4 +71,5 @@ export default chatCompletion
 
 // NOTES
 // https://huggingface.co/docs/huggingface.js/inference/README#text-generation-chat-completion-api-compatible
-// http://localhost:3030/chat/How%2520many%2520legs%2520does%2520a%2520dog%2520have%3F
+// http://localhost:3030/chat/How%20many%20legs%20does%20a%20dog%20have%3F
+// http://localhost:3030/chat/How many legs does a dog have%3F

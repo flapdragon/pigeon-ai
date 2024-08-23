@@ -131,3 +131,6 @@ dist
 
 # Ignore image files in images folder
 images/*.jpeg
+
+# Ignore text files in chats folder
+chats/*.txt
