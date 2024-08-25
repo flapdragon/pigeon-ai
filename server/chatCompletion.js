@@ -27,7 +27,7 @@ chatCompletion.get("/:content", async (req, res) => {
   })
 
   // Huggingface chatCompletion Streaming API
-  let out = "";
+  let out = `${clientIP}\n${decodeURI(content)}\n`
   for await (const chunk of hf.chatCompletionStream({
     // model: "microsoft/Phi-3-mini-4k-instruct",
     model: "mistralai/Mistral-7B-Instruct-v0.2",

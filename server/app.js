@@ -1,14 +1,25 @@
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
+import mongoose from "mongoose"
 import textToImage from "./textToImage.js"
 import chatCompletion from "./chatCompletion.js"
+
+// TODO: Make Express wait on connection to MongoDB
 
 // Express
 const app = express()
 const port = 3030
 // Use CORS
 app.use(cors())
+
+// MongoDB
+const mongoURL = "mongodb://127.0.0.1:27017/pigeon_ai"
+const mainDB = async () => {
+  await mongoose.connect(mongoURL)
+  console.log(`Connected to ${mongoURL}`)
+}
+mainDB().catch((err) => console.log(err))
 
 // Image routes
 app.use("/image", textToImage)
