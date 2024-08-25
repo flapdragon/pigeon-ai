@@ -3,6 +3,7 @@ import express from "express"
 import { writeFile } from "fs/promises"
 import { join, resolve } from "path"
 import { HfInference } from "@huggingface/inference"
+import { chats } from "./chatsModel.js"
 
 // TODO: Log input and output to files
 
@@ -17,8 +18,16 @@ chatCompletion.get("/:content", async (req, res) => {
   // Get params
   const { content } = req.params
   const clientIPArray = req.ip.split(":")
-  const clientIP = clientIPArray[clientIPArray.length-1]
-  console.log(clientIP, content)
+  const ip = clientIPArray[clientIPArray.length-1]
+  console.log(ip, content)
+
+  // Hard code model
+  const model = "mistralai/Mistral-7B-Instruct-v0.2"
+  // Hard code role, max_tokens, etc.
+  const role = "user"
+  const max_tokens = 750
+  const temperature = 0.1
+  const seed = 0
 
   // Response header
   res.writeHead(200, {
@@ -27,16 +36,16 @@ chatCompletion.get("/:content", async (req, res) => {
   })
 
   // Huggingface chatCompletion Streaming API
-  let out = "";
+  let out = `${ip}\n${decodeURI(content)}\n`
   for await (const chunk of hf.chatCompletionStream({
     // model: "microsoft/Phi-3-mini-4k-instruct",
-    model: "mistralai/Mistral-7B-Instruct-v0.2",
+    model: model,
     messages: [
-      { role: "user", content: content },
+      { role: role, content: content },
     ],
-    max_tokens: 750,
-    temperature: 0.1,
-    seed: 0,
+    max_tokens: max_tokens,
+    temperature: temperature,
+    seed: seed,
   })) {
     if (chunk.choices && chunk.choices.length > 0) {
       out += chunk.choices[0].delta.content
@@ -44,11 +53,19 @@ chatCompletion.get("/:content", async (req, res) => {
     }
   }
   // New file name
-  const fileName = `hf_${clientIP}_${Date.now().toString()}.txt`
-  // Path, save to images folder
-  const filePath = resolve(join(`${process.cwd()}/chats`, fileName))
+  const filename = `hf_${ip}_${Date.now().toString()}.txt`
+  // Path, save to chats folder
+  const filePath = resolve(join(`${process.cwd()}/chats`, filename))
   // Save file
   await writeFile(filePath, out)
+
+  console.log(ip, model, role, content, max_tokens, temperature, seed, out, filename)
+
+  // Create chat log record
+  // NOTE: Uses hard-coded model for now, until a UI gets made that passes it in
+  await chats.create({
+    ip, model, role, content, max_tokens, temperature, seed, out, filename
+  })
   res.end()
 })
 
