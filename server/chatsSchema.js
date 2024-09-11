@@ -11,7 +11,8 @@ const chatsSchema = new Schema({
   temperature: Number,
   seed: Number,
   out: String,
-  filename: String
+  filename: String,
+  date: Date
 })
 
 export default chatsSchema
