@@ -14,10 +14,14 @@ const hf = new HfInference(HF_TOKEN)
 const textToImage = express.Router()
 
 textToImage.get('/:inputs/:negative_prompt/:guidance_scale', async (req, res) => {
+  // Get user ip
   const clientIPArray = req.ip.split(":")
   const ip = clientIPArray[clientIPArray.length-1]
-  console.log(ip)
+  // Get params
   const { inputs, negative_prompt, guidance_scale } = req.params
+  // Log user ips and requests
+  console.log(ip, `${inputs.substring(0, 10)}...`)
+
   // Hard code model
   const model = "stabilityai/stable-diffusion-xl-base-1.0"
   // TODO: check for inappropriate inputs
