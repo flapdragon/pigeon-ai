@@ -12,6 +12,8 @@ const app = express()
 const port = 3030
 // Use CORS
 app.use(cors())
+// Disable X-Powered-By: Express for security reasons
+app.disable('x-powered-by')
 
 // MongoDB
 const mongoURL = "mongodb://127.0.0.1:27017/pigeon_ai"
