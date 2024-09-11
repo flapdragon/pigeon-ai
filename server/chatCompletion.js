@@ -14,18 +14,19 @@ const inference = new HfInference(HF_TOKEN)
 const chatCompletion = express.Router()
 
 chatCompletion.get("/:content", async (req, res) => {
-  // Get params
-  const { content } = req.params
+  // Get user ip
   const clientIPArray = req.ip.split(":")
   const ip = clientIPArray[clientIPArray.length-1]
-  // Log it
+  // Get params
+  const { content } = req.params
+  // Log user ip and request
   console.log(ip, `${content.substring(0, 10)}...`)
 
-  // Hard code model
-  const model = "mistralai/Mistral-7B-Instruct-v0.2"
+  // Hard code model until UI is built, v0.3
+  const model = "mistralai/Mistral-7B-Instruct-v0.3"
   // Hard code role, max_tokens, etc.
   const role = "user"
-  const maxTokens = 100
+  const maxTokens = 500
   const temperature = 0.1
   const seed = 0
 
@@ -63,9 +64,8 @@ chatCompletion.get("/:content", async (req, res) => {
   // console.log(ip, model, role, content, maxTokens, temperature, seed, filename)
 
   // Create chat log record
-  // NOTE: Uses hard-coded model for now, until a UI gets made that passes it in
   await chats.create({
-    ip, model, role, content, maxTokens, temperature, seed, out, filename
+    ip, model, role, content, maxTokens, temperature, seed, out, filename, date: new Date()
   })
 
   res.end()
@@ -78,10 +78,10 @@ chatCompletion.get("/non-streaming/:content", async (req, res) => {
   const ip = clientIPArray[clientIPArray.length-1]
   // Get params
   const { content } = req.params
-  // Log user ips and requests
+  // Log user ip and request
   console.log(ip, `${content.substring(0, 10)}...`)
 
-  // Hard code model until UI is built
+  // Hard code model until UI is built, v0.3
   const model = "mistralai/Mistral-7B-Instruct-v0.3"
   // Hard code role, max_tokens, etc.
   const role = "user"
