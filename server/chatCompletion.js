@@ -23,7 +23,8 @@ chatCompletion.get("/:content", async (req, res) => {
   console.log(ip, `${content.substring(0, 10)}...`)
 
   // Hard code model until UI is built, v0.3
-  const model = "mistralai/Mistral-7B-Instruct-v0.3"
+  // const model = "mistralai/Mistral-7B-Instruct-v0.3"
+  const model = "microsoft/Phi-3-mini-4k-instruct"
   // Hard code role, max_tokens, etc.
   const role = "user"
   const maxTokens = 500
@@ -39,7 +40,6 @@ chatCompletion.get("/:content", async (req, res) => {
   // Huggingface chatCompletion Streaming API
   let out = `${ip}\n${decodeURI(content)}\n`
   for await (const chunk of inference.chatCompletionStream({
-    // model: "microsoft/Phi-3-mini-4k-instruct",
     model: model,
     messages: [
       { role: role, content: content },
